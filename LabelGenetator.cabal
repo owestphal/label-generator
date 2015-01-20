@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                LabelGenerator
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            small application to print stuff on sticky lables
 description:         
 license:             BSD3
@@ -17,7 +17,9 @@ cabal-version:       >=1.10
 
 data-files:          GUI/*.xml
 
-
+source-repository head
+  type: git
+  location: git://github.com/owestphal/label-generator
 
 executable LabelGenetator
   main-is:             Main.hs
@@ -26,8 +28,6 @@ executable LabelGenetator
   build-depends:       base >=4.7 && <4.8, directory >=1.2 && <1.3, process >=1.2 && <1.3,
                        gtk >=0.13.4, transformers >= 0.3, unix >= 2.7
   hs-source-dirs:      src
-
-  source-repository:   https://github.com/owestphal/label-generator
 
   ghc-options:         -threaded
   default-language:    Haskell2010
