@@ -4,7 +4,6 @@ module GUI
        where
 
 import Paths_LabelGenerator
---import Paths_Debug
 
 import Control.Monad
 import Control.Monad.IO.Class
@@ -388,9 +387,7 @@ getOffset gui conf = do
   return offset
   
 showPdf :: FilePath ->  IO ()
-showPdf filename = forkIO
-                   (do
-                       rawSystem "xdg-open" [filename]
-                       removeFile filename
-                   ) >> return ()
+showPdf filename = do
+  forkIO $ rawSystem "xdg-open" [filename] >> removeFile filename
+  return ()
   

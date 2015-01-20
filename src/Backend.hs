@@ -24,10 +24,10 @@ main = undefined
 
 createLabelPdf :: Settings -> [String] -> IO FilePath
 createLabelPdf set ls = do
-  (filepath, handle) <- openTempFile "" "result.tex"
+  (filepath, handle) <- openTempFile "/tmp" "result.tex"
   hPutStr handle $ generateLatexFileContent set ls
   hClose handle
-  rawSystem "pdflatex" [ "-output-directory", ".", filepath]
+  rawSystem "pdflatex" [ "-output-directory", "/tmp", filepath]
 
   let filepathBase = fst.breakAtDot $ filepath
   
