@@ -46,7 +46,6 @@ preamble set =
     \ \\usepackage[T1]{fontenc} \n \
     \ \\newcommand{\\changefont}[3]{ \n \
     \ \\fontfamily{#1} \\fontseries{#2} \\fontshape{#3} \\selectfont} \n \
-    \ \\usepackage{anyfontsize} \n \
     \ \\usepackage[newdimens]{labels} \n \
     \ \\usepackage{graphicx} \n \
     \ \\usepackage{calc} \n"

@@ -388,6 +388,6 @@ getOffset gui conf = do
   
 showPdf :: FilePath ->  IO ()
 showPdf filename = do
-  forkIO $ rawSystem "xdg-open" [filename] >> removeFile filename
+  forkIO $ rawSystem "xdg-open" [filename] >> return() -- >> removeFile filename
   return ()
   
