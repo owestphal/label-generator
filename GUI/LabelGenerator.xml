@@ -237,7 +237,7 @@
               <object class="GtkLabel" id="lAddLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">weitere Beschriftung</property>
+                <property name="label" translatable="yes">weiteres Etikett</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -289,8 +289,9 @@
     </child>
   </object>
   <object class="GtkAdjustment" id="offsetBottom">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="offsetColumn">
@@ -301,12 +302,14 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="offsetLeft">
-    <property name="upper">100</property>
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="offsetRight">
-    <property name="upper">100</property>
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -319,7 +322,7 @@
   </object>
   <object class="GtkWindow" id="wCreateLabels">
     <property name="can_focus">False</property>
-    <property name="role">Label Erstellung</property>
+    <property name="role">Etikettdaten eingeben</property>
     <property name="window_position">center</property>
     <child>
       <object class="GtkVBox" id="vbox6">
@@ -494,8 +497,9 @@
     </child>
   </object>
   <object class="GtkAdjustment" id="offsetTop">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkWindow" id="wCalibration">
@@ -580,6 +584,7 @@ Einstellung der Druckerabweichung in mm
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">offsetTop</property>
+                <property name="digits">1</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -596,6 +601,7 @@ Einstellung der Druckerabweichung in mm
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">offsetBottom</property>
+                <property name="digits">1</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -614,6 +620,7 @@ Einstellung der Druckerabweichung in mm
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">offsetLeft</property>
+                <property name="digits">1</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>
@@ -630,6 +637,7 @@ Einstellung der Druckerabweichung in mm
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
                 <property name="adjustment">offsetRight</property>
+                <property name="digits">1</property>
               </object>
               <packing>
                 <property name="left_attach">3</property>

@@ -20,14 +20,13 @@ import LatexCode
 data LabelData = RangeLabel {year :: Int, first :: Int, last :: Int, zeros :: Bool } |
                  StringLabel {labels :: [(String,String,String)]}
 
-main = undefined
-
 createLabelPdf :: Settings -> [String] -> IO FilePath
 createLabelPdf set ls = do
-  (filepath, handle) <- openTempFile "/tmp" "result.tex"
-  hPutStr handle $ generateLatexFileContent set ls
-  hClose handle
-  rawSystem "pdflatex" [ "-output-directory", "/tmp", filepath]
+  (filepath, fileH) <- openTempFile "/tmp" "result.tex"
+  hPutStr fileH $ generateLatexFileContent set ls
+  hClose fileH
+  -- TODO: maybe catch latex-compile error
+  _ <- rawSystem "pdflatex" [ "-output-directory", "/tmp", filepath]
 
   let filepathBase = fst.breakAtDot $ filepath
   
@@ -37,13 +36,14 @@ createLabelPdf set ls = do
 removeFiles :: String -> [String] -> IO ()
 removeFiles basename suffixes  = mapM_ removeFile $ zipWith (++) (repeat.fst.breakAtDot $ basename) suffixes
 
+breakAtDot :: String -> (String,String)
 breakAtDot = break ( (==) '.' ) 
 
 -- Label format functions
 
 parseLabelData :: LabelData -> [String]
-parseLabelData (RangeLabel year f l True) = map ( ((show year ++ "/") ++).addZeros.show ) [f..l]
-parseLabelData (RangeLabel year f l False) = map ( ((show year ++ "/") ++).show ) [f..l]
+parseLabelData (RangeLabel y f l True) = map ( ((show y ++ "/") ++).addZeros.show ) [f..l]
+parseLabelData (RangeLabel y f l False) = map ( ((show y ++ "/") ++).show ) [f..l]
 parseLabelData (StringLabel l) = map (\(s1,s2,s3) -> s1++ nl ++s2++ nl4 ++(take 5 s3)) l
   where nl = "\\\\ " -- double backslash ( = newline in LaTex)
         nl4 = concat [nl,nl,nl,nl]
@@ -62,23 +62,15 @@ addZeros s = case length s of
     1 -> "00" ++ s
     2 -> "0" ++ s
     3 -> "" ++ s
-    otherwise -> s 
-
-testIndexLabels = createLabelPdf (Settings indexConf printer)
-                  $ parseLabelData (RangeLabel 2015 1 500 True) 
-
--- backcover Label functions
-
-testBackcoverLabels = createLabelPdf (Settings backcoverConf printer) $ parseLabelData testData
-
-testData = StringLabel $ [("Ge","5.42", "Thies"), ("Sp","2.29","Dawid")] ++ blanks
-
-blanks = take 51 $ repeat ("","","")
+    _ -> s 
 
 -- calibration functions
 
-createCalibrationPage = createLabelPdf (Settings calibConf printer)
-                        ["Drucker Test Seite: \\\\ Alle Kanten sollten 10 mm vom Rand entfernt sein.\\\\ Falls nicht muss das Programm nach kalibriert werden.\\\\ Ein positiver Kalibrierungswert verschiebt die Kante in Richtung Blattmitte,\\\\ ein negativer Wert in Richtung Rand."]
+createCalibrationPage :: IO FilePath
+createCalibrationPage = do
+  printer <- loadCalibration
+  createLabelPdf (Settings calibConf printer)
+    ["Drucker Test Seite: \\\\ Alle Kanten sollten 10 mm vom Rand entfernt sein.\\\\ Falls nicht muss das Programm nach kalibriert werden.\\\\ Ein positiver Kalibrierungswert verschiebt die Kante in Richtung Blattmitte,\\\\ ein negativer Wert in Richtung Rand."]
 
 saveCalibration :: PrinterSetting -> IO ()
 saveCalibration set = do
@@ -93,5 +85,4 @@ loadCalibration = do
     `catch` handleError
   where handleError :: IOException -> IO PrinterSetting
         handleError _ = return defaultPrinterSettings
-                  
-printer = defaultPrinterSettings  {topOffset = 1}
+

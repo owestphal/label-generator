@@ -11,12 +11,8 @@ import Control.Monad.IO.Class
 import Control.Concurrent
 
 import System.Process
-import System.Directory
-
-import GHC.Float
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Builder
 
 import Backend
 import LatexCode
@@ -63,9 +59,8 @@ data BackcoverEntry = BackcoverEntry { boxBackcoverEntry :: VBox,
 
 data GUIType = MainMenuGUI | LabelCreationGUI SubGUIType | CalibrationGUI
 data SubGUIType = BackcoverGUI | AccessNumberGUI
-  
-main = startGUI
 
+startGUI :: IO ()
 startGUI = do
   -- init GTK
   initGUI
@@ -140,15 +135,16 @@ buildMainMenuGUI builder = do
   return $ MainMenu window backcover accessNumber calibration quit
 
 connectMainMenuGUI :: GUI -> IO ()
-connectMainMenuGUI gui@(MainMenu w backcover accessnumber calib quit) = do
-  w `on` destroyEvent $ liftIO mainQuit >> return True
-  w `on` deleteEvent $ liftIO (widgetDestroy w) >> liftIO mainQuit >> return True
+connectMainMenuGUI gui = do
+  (wMainWindow gui) `on` destroyEvent $ liftIO mainQuit >> return True
+  (wMainWindow gui) `on` deleteEvent $ liftIO (widgetDestroy (wMainWindow gui))
+    >> liftIO mainQuit >> return True
 
-  backcover `on` buttonActivated $ changeGUI gui (LabelCreationGUI BackcoverGUI)
-  accessnumber `on` buttonActivated $ changeGUI gui (LabelCreationGUI AccessNumberGUI)
-  calib `on` buttonActivated $ changeGUI gui CalibrationGUI
+  (bBackcover gui) `on` buttonActivated $ changeGUI gui (LabelCreationGUI BackcoverGUI)
+  (bAccessNumber gui) `on` buttonActivated $ changeGUI gui (LabelCreationGUI AccessNumberGUI)
+  (bCalibration gui) `on` buttonActivated $ changeGUI gui CalibrationGUI
 
-  quit `on` buttonActivated $ widgetDestroy w >> mainQuit
+  (bQuit gui) `on` buttonActivated $ widgetDestroy (wMainWindow gui) >> mainQuit
 
   return ()
 
@@ -164,7 +160,7 @@ buildLabelCreationGUI subType builder = do
   cancel <- builderGetObject builder castToButton "bCancel"
   ok <- builderGetObject builder castToButton "bOK"
 
-  window `set` [windowTitle := "Labelerstellung"]
+  window `set` [windowTitle := "Etikettdaten eingeben"]
 
   -- reparent bounding box of sub GUI
   contentSpace <- builderGetObject builder castToAlignment "alContentSpace"
@@ -222,7 +218,7 @@ createBackcoverPdf :: GUI -> IO ()
 createBackcoverPdf gui = do
   labels <- mapM getEntryStrings (entries $ subGUI gui)
 
-  (rows,columns) <- getOffset gui backcoverConf
+  (rows,columns) <- getOffset gui
     
   let labelData = StringLabel labels
   printSet <- loadCalibration
@@ -299,7 +295,7 @@ createAccessNumberPdf gui = do
   number <- spinButtonGetValueAsInt $ sbNumberOfLabels $ subGUI gui
   zeros <- toggleButtonGetActive $ cbLeadingZeros $ subGUI gui
 
-  (rows,columns) <- getOffset gui indexConf
+  (rows,columns) <- getOffset gui
            
   let labelData = RangeLabel year first last zeros
   printSet <- loadCalibration
@@ -374,8 +370,8 @@ createCalibration gui = do
 
 -- helper functions
 
-getOffset :: GUI -> Configuration -> IO (Int,Int)
-getOffset gui conf = do
+getOffset :: GUI -> IO (Int,Int)
+getOffset gui = do
   useOffset <- toggleButtonGetActive $ cbOffset gui
   rows <- spinButtonGetValueAsInt $ offsetRows gui
   columns <- spinButtonGetValueAsInt $ offsetColumns gui

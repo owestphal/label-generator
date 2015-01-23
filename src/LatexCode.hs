@@ -32,6 +32,7 @@ data PrinterSetting = PrinterSetting { topOffset :: Double,
                                        leftOffset :: Double }
                       deriving (Show, Read)
 
+defaultPrinterSettings :: PrinterSetting
 defaultPrinterSettings = PrinterSetting 0 0 0 0
                       
 generateLatexFileContent :: Settings -> [String] -> String
@@ -93,6 +94,7 @@ makeLabel :: String -> String
 makeLabel text = "\\mkLabel{" ++ text ++ "}"
 
 --TODO namen überdenken
+backcoverConf :: Configuration
 backcoverConf = Configuration { columns = 9,
                                 rows = 7,
                                 numberOfLabels = 1,
@@ -104,19 +106,21 @@ backcoverConf = Configuration { columns = 9,
                                 labelDistV = 2,
                                 borders = False,
                                 offset = 0}
-             
+
+indexConf :: Configuration             
 indexConf = Configuration { columns = 7,
                             rows = 27,
                             numberOfLabels = 2,
                             leftMargin = 10,
                             rightMargin = 8,
-                            topMargin = 13,
-                            bottomMargin = 14,
+                            topMargin = 13.5,
+                            bottomMargin = 13.5,
                             labelDistH = 3,
                             labelDistV = 0,
                             borders = False,
                             offset = 0}
 
+calibConf :: Configuration
 calibConf =  Configuration { columns = 1,
                             rows = 1,
                             numberOfLabels = 1,
