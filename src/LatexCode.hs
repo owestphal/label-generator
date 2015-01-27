@@ -45,15 +45,14 @@ preamble set =
     \ \\usepackage[utf8]{inputenc} \n \
     \ \\usepackage[german]{babel} \n \
     \ \\usepackage[T1]{fontenc} \n \
-    \ \\newcommand{\\changefont}[3]{ \n \
-    \ \\fontfamily{#1} \\fontseries{#2} \\fontshape{#3} \\selectfont} \n \
+    \ \\usepackage{helvet} \n \
+    \ \\renewcommand{\\familydefault}{\\sfdefault} \n \
     \ \\usepackage[newdimens]{labels} \n \
     \ \\usepackage{graphicx} \n \
     \ \\usepackage{calc} \n"
     ++ settings set ++ 
     " \\newcommand{\\mkLabel}[1]{  \
     \ \\genericlabel{ \
-    \ \\changefont{phv}{b}{n} \
     \ \\begin{tabular}{l} #1 \\end{tabular} \
     \ }}"
 
@@ -68,7 +67,7 @@ settings (Settings conf printer) =
     \ \\BottomPageMargin=" ++ (show $ offB + (bottomMargin conf)) ++ "mm \
     \ \\InterLabelColumn=" ++ (show $ labelDistH conf) ++ "mm \
     \ \\InterLabelRow=" ++ (show $ labelDistV conf) ++ "mm \
-    \ \\LeftLabelBorder=-7mm \
+    \ \\LeftLabelBorder=0mm \
     \ \\RightLabelBorder=0mm \
     \ \\TopLabelBorder=0mm \
     \ \\BottomLabelBorder=0mm " ++
