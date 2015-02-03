@@ -30,7 +30,7 @@ createLabelPdf set ls = do
 
   let filepathBase = fst.breakAtDot $ filepath
   
-  removeFiles filepathBase [".aux",".log",".tex"]
+  --removeFiles filepathBase [".aux",".log",".tex"]
   return $ filepathBase ++ ".pdf"
   
 removeFiles :: String -> [String] -> IO ()

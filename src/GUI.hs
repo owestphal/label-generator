@@ -5,6 +5,8 @@ module GUI
 
 import Paths_LabelGenerator
 
+import Data.Text
+
 import Control.Monad
 import Control.Monad.IO.Class
 
@@ -201,11 +203,20 @@ connectBackcoverGUI gui = do
   
   (bCancel gui) `on` buttonActivated $ changeGUI gui MainMenuGUI
 
-  okID <- (bOK gui) `on` buttonActivated $ createBackcoverPdf gui >> changeGUI gui MainMenuGUI
+  okID <- (bOK gui) `on` buttonActivated $ createBackcoverPdf gui
   addID <- (bAdd gui) `on` buttonActivated $ do sub' <- addLabelEntry (subGUI gui)
                                                 let gui' = gui{subGUI = sub'} 
                                                 switchOutGUI gui gui' False
                                                 connectBackcoverGUI gui'
+
+  -- das gtk-hs event system is mist
+  -- deshalb dieser nette hack hier
+  (wMainWindow gui) `on` keyPressEvent $ tryEvent $ do
+    name <- eventKeyName
+    case (unpack name) of
+     "Return" -> liftIO $ buttonClicked (bAdd gui)
+    
+      
   -- sehr unschöne Lösung
   (bAdd gui) `on` buttonActivated $ do
     signalDisconnect okID
@@ -240,6 +251,7 @@ addLabelEntry old@Backcover{} = do
   newEntry <- backcoverEntry
 
   widgetReparent (boxBackcoverEntry newEntry) (boxEntrySpace old)
+  widgetGrabFocus (tfMainGroup newEntry)
 
   return old{entries=(entries old)++[newEntry]}
 addLabelEntry _ = error "can't add LabelEntry to this GUI type"
@@ -282,8 +294,8 @@ connectAccessNumberGUI gui = do
     liftIO (widgetDestroy (wMainWindow gui)) >> liftIO mainQuit >> return True
 
   (bCancel gui) `on` buttonActivated $ changeGUI gui MainMenuGUI
-  -- TODO: Preview
-  (bOK gui) `on` buttonActivated $ createAccessNumberPdf gui >> changeGUI gui MainMenuGUI
+
+  (bOK gui) `on` buttonActivated $ createAccessNumberPdf gui
   return ()
 
 createAccessNumberPdf :: GUI -> IO ()
@@ -384,6 +396,6 @@ getOffset gui = do
   
 showPdf :: FilePath ->  IO ()
 showPdf filename = do
-  forkIO $ rawSystem "xdg-open" [filename] >> return() -- >> removeFile filename
+  forkIO $ rawSystem "xdg-open" [filename] >> return()
   return ()
   

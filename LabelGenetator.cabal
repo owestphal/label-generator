@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                LabelGenerator
-version:             0.1.1.1
+version:             0.1.2.0
 synopsis:            small application to print stuff on sticky labels
 description:         small application to print stuff on sticky labels
 license:             BSD3
@@ -26,6 +26,7 @@ executable LabelGenetator
   other-modules:       Backend, LatexCode, GUI, Paths_LabelGenerator
   -- other-extensions:    
   build-depends:       base,
+                       text,
                        directory >=1.2 && <1.3,
                        process >=1.2 && <1.3,
                        gtk >=0.13.4,
