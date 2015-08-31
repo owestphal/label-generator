@@ -206,8 +206,8 @@ connectBackcoverGUI gui = void $ do
   wMainWindow gui `on` keyPressEvent $ tryEvent $ do
     name <- eventKeyName
     case unpack name of
+      -- this case expression is non-exhaustive by design
      "Return" -> liftIO $ buttonClicked (bAdd gui)
-     _ -> return ()
 
   -- sehr unschöne Lösung
   bAdd gui `on` buttonActivated $ do
