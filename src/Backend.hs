@@ -8,14 +8,15 @@ module Backend
        ,loadCalibration
        ) where
 
-import System.IO
-import System.Directory
-import System.Process
-import System.Posix.User
+import           System.Directory
+import           System.IO
+import           System.Posix.User
+import           System.Process
 
-import Control.Exception.Base
+import           Control.Exception.Base
+import           Control.Monad          (liftM)
 
-import LatexCode
+import           LatexCode
 
 data LabelData = RangeLabel {year :: Int, first :: Int, last :: Int, zeros :: Bool } |
                  StringLabel {labels :: [(String,String,String)]}
@@ -29,30 +30,31 @@ createLabelPdf set ls = do
   _ <- rawSystem "pdflatex" [ "-output-directory", "/tmp", filepath]
 
   let filepathBase = fst.breakAtDot $ filepath
-  
+
   --removeFiles filepathBase [".aux",".log",".tex"]
   return $ filepathBase ++ ".pdf"
-  
+
 removeFiles :: String -> [String] -> IO ()
-removeFiles basename suffixes  = mapM_ removeFile $ zipWith (++) (repeat.fst.breakAtDot $ basename) suffixes
+removeFiles basename = mapM_ (removeFile.prependBaseName)
+  where prependBaseName = ((fst.breakAtDot $ basename) ++)
 
 breakAtDot :: String -> (String,String)
-breakAtDot = break ( (==) '.' ) 
+breakAtDot = break ('.' ==)
 
 -- Label format functions
 
 parseLabelData :: LabelData -> [String]
 parseLabelData (RangeLabel y f l True) = map ( ((show y ++ "/") ++).addZeros.show ) [f..l]
 parseLabelData (RangeLabel y f l False) = map ( ((show y ++ "/") ++).show ) [f..l]
-parseLabelData (StringLabel l) = map (\(s1,s2,s3) -> s1++ nl ++s2++ nl4 ++(take 5 s3)) l
+parseLabelData (StringLabel l) = map (\(s1,s2,s3) -> s1 ++ nl ++ s2 ++ nl4 ++ take 5 s3) l
   where nl = "\\\\ " -- double backslash ( = newline in LaTex)
         nl4 = concat [nl,nl,nl,nl]
-        
+
 computeOffset :: Configuration -> Int -> Int -> Int
 computeOffset Configuration {columns = cs} r c = c + r * cs
 
 offsetLabelPosition :: Configuration -> Int -> Int -> Configuration
-offsetLabelPosition conf r c = conf{offset=(computeOffset conf r c)}
+offsetLabelPosition conf r c = conf{offset = computeOffset conf r c}
 
 -- index Label functions
 
@@ -62,7 +64,7 @@ addZeros s = case length s of
     1 -> "00" ++ s
     2 -> "0" ++ s
     3 -> "" ++ s
-    _ -> s 
+    _ -> s
 
 -- calibration functions
 
@@ -75,14 +77,13 @@ createCalibrationPage = do
 saveCalibration :: PrinterSetting -> IO ()
 saveCalibration set = do
   user <- getEffectiveUserName
-  writeFile ("/home/" ++ user ++ "/.labelGeneratorPrinterSettings") $ show set 
+  writeFile ("/home/" ++ user ++ "/.labelGeneratorPrinterSettings") $ show set
 
-  
+
 loadCalibration :: IO PrinterSetting
 loadCalibration = do
   user <- getEffectiveUserName
-  (readFile ("/home/" ++ user ++ "/.labelGeneratorPrinterSettings") >>= (\s -> return $ read s) )
+  liftM read (readFile ("/home/" ++ user ++ "/.labelGeneratorPrinterSettings"))
     `catch` handleError
   where handleError :: IOException -> IO PrinterSetting
         handleError _ = return defaultPrinterSettings
-

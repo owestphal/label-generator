@@ -1,4 +1,4 @@
-module LatexCode 
+module LatexCode
        (Settings(..)
        ,Configuration(..)
        ,PrinterSetting(..)
@@ -11,33 +11,33 @@ module LatexCode
 
 data Settings = Settings Configuration PrinterSetting
 
--- all distances are milimeter values  
-data Configuration = Configuration { columns :: Int,
-                                     rows :: Int,
+-- all distances are milimeter values
+data Configuration = Configuration { columns        :: Int,
+                                     rows           :: Int,
                                      numberOfLabels :: Int,
-                                     leftMargin :: Double,
-                                     rightMargin :: Double,
-                                     topMargin :: Double,
-                                     bottomMargin :: Double,
-                                     labelDistH :: Double,
-                                     labelDistV :: Double,
-                                     borders :: Bool,
-                                     offset :: Int}
+                                     leftMargin     :: Double,
+                                     rightMargin    :: Double,
+                                     topMargin      :: Double,
+                                     bottomMargin   :: Double,
+                                     labelDistH     :: Double,
+                                     labelDistV     :: Double,
+                                     hasBorders     :: Bool,
+                                     offset         :: Int}
 
 -- positive value if printer prints to close to edge [in mm]
 -- negative value if printer prints to far from edge [in mm]
-data PrinterSetting = PrinterSetting { topOffset :: Double,
+data PrinterSetting = PrinterSetting { topOffset    :: Double,
                                        bottomOffset :: Double,
-                                       rightOffset :: Double,
-                                       leftOffset :: Double }
+                                       rightOffset  :: Double,
+                                       leftOffset   :: Double }
                       deriving (Show, Read)
 
 defaultPrinterSettings :: PrinterSetting
 defaultPrinterSettings = PrinterSetting 0 0 0 0
-                      
+
 generateLatexFileContent :: Settings -> [String] -> String
 generateLatexFileContent set@(Settings conf _) labels =
-  (preamble set) ++ "\n" ++ (body conf labels)
+  preamble set ++ "\n" ++ body conf labels
 
 preamble :: Settings -> String
 preamble set =
@@ -50,43 +50,42 @@ preamble set =
     \ \\usepackage[newdimens]{labels} \n \
     \ \\usepackage{graphicx} \n \
     \ \\usepackage{calc} \n"
-    ++ settings set ++ 
+    ++ settings set ++
     " \\newcommand{\\mkLabel}[1]{  \
     \ \\genericlabel{ \
     \ \\begin{tabular}{l} #1 \\end{tabular} \
     \ }}"
 
 settings :: Settings -> String
-settings (Settings conf printer) = 
-    " \\LabelCols=" ++ (show $ columns conf) ++ " \
-    \ \\LabelRows=" ++ (show $ rows conf) ++ " \
-    
-    \ \\LeftPageMargin=" ++ (show $ offL + (leftMargin conf)) ++ "mm \
-    \ \\RightPageMargin=" ++ (show $ offR + (rightMargin conf)) ++ "mm \
-    \ \\TopPageMargin=" ++ (show $ offT + (topMargin conf)) ++ "mm \
-    \ \\BottomPageMargin=" ++ (show $ offB + (bottomMargin conf)) ++ "mm \
-    \ \\InterLabelColumn=" ++ (show $ labelDistH conf) ++ "mm \
-    \ \\InterLabelRow=" ++ (show $ labelDistV conf) ++ "mm \
+settings (Settings conf printer) =
+    " \\LabelCols=" ++ show (columns conf) ++ " \
+    \ \\LabelRows=" ++ show (rows conf) ++ " \
+
+    \ \\LeftPageMargin=" ++ show (offL + leftMargin conf) ++ "mm \
+    \ \\RightPageMargin=" ++ show (offR + rightMargin conf) ++ "mm \
+    \ \\TopPageMargin=" ++ show (offT + topMargin conf) ++ "mm \
+    \ \\BottomPageMargin=" ++ show (offB + bottomMargin conf) ++ "mm \
+    \ \\InterLabelColumn=" ++ show (labelDistH conf) ++ "mm \
+    \ \\InterLabelRow=" ++ show (labelDistV conf) ++ "mm \
     \ \\LeftLabelBorder=0mm \
     \ \\RightLabelBorder=0mm \
     \ \\TopLabelBorder=0mm \
     \ \\BottomLabelBorder=0mm " ++
-    if (borders conf == True)
-            then "\\LabelGridtrue"
-            else ""
+    if hasBorders conf
+      then "\\LabelGridtrue"
+      else ""
       where offT = topOffset printer
             offB = bottomOffset printer
             offR = rightOffset printer
             offL = leftOffset printer
 
-                          
+
 body :: Configuration -> [String] -> String
 body conf labels = "\\begin{document}"
-              ++ concat (replicate (offset conf) $ makeLabel "")  
-              ++ concat (map
-                         (concat .( replicate (numberOfLabels conf) ).makeLabel)
-                         labels
-                        )
+              ++ concat (replicate (offset conf) $ makeLabel "")
+              ++ concatMap
+                 (concat .replicate (numberOfLabels conf).makeLabel)
+                 labels
               ++ "\\end{document}"
 
 makeLabel :: String -> String
@@ -103,10 +102,10 @@ backcoverConf = Configuration { columns = 9,
                                 bottomMargin = 9,
                                 labelDistH = 2,
                                 labelDistV = 2,
-                                borders = False,
+                                hasBorders = False,
                                 offset = 0}
 
-indexConf :: Configuration             
+indexConf :: Configuration
 indexConf = Configuration { columns = 7,
                             rows = 27,
                             numberOfLabels = 2,
@@ -116,7 +115,7 @@ indexConf = Configuration { columns = 7,
                             bottomMargin = 13.5,
                             labelDistH = 3,
                             labelDistV = 0,
-                            borders = False,
+                            hasBorders = False,
                             offset = 0}
 
 calibConf :: Configuration
@@ -129,5 +128,5 @@ calibConf =  Configuration { columns = 1,
                             bottomMargin = 10,
                             labelDistH = 0,
                             labelDistV = 0,
-                            borders = True,
+                            hasBorders = True,
                             offset = 0}
