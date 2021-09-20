@@ -1,0 +1,36 @@
+name:                LabelGenerator
+version:             0.1.2.0
+synopsis:            small application to print stuff on sticky labels
+description:         small application to print stuff on sticky labels
+license:             BSD3
+license-file:        LICENSE
+author:              Oliver Westphal
+maintainer:          Oliver Westphal
+category:            Text
+
+extra-source-files: []
+
+dependencies:
+  - base
+  - process
+  - text
+  - unix
+  - directory
+  - transformers
+
+library:
+  source-dirs: src/lib
+  ghc-options:
+    - -Wall
+
+executables:
+  PdfGenerator:
+    main: Main.hs
+    source-dirs: src/pdf
+    ghc-options:
+    - -O2
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - LabelGenerator
